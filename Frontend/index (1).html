@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" data-color-scheme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Voice2Ticket</title>
+
+  <link rel="stylesheet" href="style.css">
+  <!-- AWS SDK v2 for browsers -->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1484.0.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Auth -->
+  <section id="auth" class="container">
+    <div class="card auth-card">
+      <h1 class="brand">Voice2Ticket</h1>
+      <div class="auth-tabs">
+        <button id="tab-login" class="auth-tab active">Login</button>
+        <button id="tab-signup" class="auth-tab">Sign up</button>
+      </div>
+
+      <!-- Login -->
+      <form id="login-form" class="form visible">
+        <div class="form-row">
+          <label>Email</label>
+          <input id="login-email" type="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-row">
+          <label>Password</label>
+          <input id="login-password" type="password" placeholder="••••••••" required>
+        </div>
+        <div class="form-row">
+          <label>Role</label>
+          <select id="login-role">
+            <option value="user" selected>User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <button class="btn btn-primary w-full" type="submit">Sign in</button>
+      </form>
+
+      <!-- Signup -->
+      <form id="signup-form" class="form">
+        <div class="grid-2">
+          <div class="form-row">
+            <label>First name</label>
+            <input id="signup-first" type="text" placeholder="Jane" required>
+          </div>
+          <div class="form-row">
+            <label>Last name</label>
+            <input id="signup-last" type="text" placeholder="Doe" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Email</label>
+          <input id="signup-email" type="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-row">
+          <label>Department</label>
+          <select id="signup-department">
+            <option value="IT" selected>IT</option>
+            <option value="HR">HR</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Password</label>
+          <input id="signup-password" type="password" placeholder="Create a password" required>
+        </div>
+        <button class="btn btn-primary w-full" type="submit">Create account</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- App -->
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div class="brand">Voice2Ticket</div>
+      <div class="topbar-right">
+        <div class="user-chip">
+          <span id="chip-name">User</span>
+          <span id="chip-role" class="role-indicator user">user</span>
+        </div>
+        <button id="theme-toggle" class="btn btn-ghost" title="Toggle theme">☀️</button>
+        <button id="sign-out" class="btn btn-secondary">Sign out</button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <nav class="nav">
+          <!-- User nav -->
+          <a class="nav-link" data-page="raise-ticket">🎙️ Raise Ticket</a>
+
+          <!-- Admin-only -->
+          <div id="admin-nav" class="hidden">
+            <div class="divider"></div>
+            <a class="nav-link" data-page="tickets">📋 All Tickets</a>
+            <a class="nav-link" data-page="audio">🎧 Audio Files</a>
+            <a class="nav-link" data-page="dashboard">📈 Dashboard</a>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <h1 id="page-title" class="page-title">Raise Ticket</h1>
+
+        <!-- Raise Ticket (User) -->
+        <section id="raise-ticket-page" class="page-content">
+          <div class="grid-2">
+            <div class="card">
+              <h2>Create by typing</h2>
+              <div class="form-row">
+                <label>Title</label>
+                <input id="ticket-title" type="text" placeholder="Short issue title">
+              </div>
+              <div class="form-row">
+                <label>Description</label>
+                <textarea id="ticket-desc" rows="6" placeholder="Describe your issue..."></textarea>
+              </div>
+              <div class="grid-2">
+                <div class="form-row">
+                  <label>Department</label>
+                  <select id="ticket-dept">
+                    <option value="IT" selected>IT</option>
+                    <option value="HR">HR</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label>Priority</label>
+                  <select id="ticket-priority">
+                    <option>Low</option>
+                    <option selected>Medium</option>
+                    <option>High</option>
+                  </select>
+                </div>
+              </div>
+              <button id="create-ticket" class="btn btn-primary">Submit Ticket</button>
+            </div>
+
+            <div class="card">
+              <h2>Create with voice</h2>
+              <div class="record-ui">
+                <div class="record-row">
+                  <button id="record-btn" class="btn btn-danger">Start Recording</button>
+                  <button id="re-record" class="btn btn-secondary" disabled>Re-record</button>
+                  <button id="submit-recording" class="btn btn-primary" disabled>Upload & Submit</button>
+                </div>
+                <div class="record-meta">
+                  <span id="record-timer">00:00</span>
+                  <span id="record-status" class="badge">Idle</span>
+                </div>
+                <audio id="recording-preview" controls class="hidden"></audio>
+              </div>
+              <div class="form-row">
+                <label>Department</label>
+                <select id="voice-dept">
+                  <option value="IT" selected>IT</option>
+                  <option value="HR">HR</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>Priority</label>
+                <select id="voice-priority">
+                  <option>Low</option>
+                  <option selected>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tickets (Admin) -->
+        <section id="tickets-page" class="page-content hidden">
+          <div class="card">
+            <div class="list-header">
+              <input id="search-tickets" class="input" placeholder="Search tickets…">
+              <div class="list-actions">
+                <select id="filter-status">
+                  <option value="">All Status</option>
+                  <option>Open</option>
+                  <option>In Progress</option>
+                  <option>Closed</option>
+                </select>
+                <select id="filter-department">
+                  <option value="">All Dept</option>
+                  <option>IT</option>
+                  <option>HR</option>
+                  <option>Admin</option>
+                </select>
+                <select id="filter-priority">
+                  <option value="">All Priority</option>
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Created</th>
+                    <th>Title</th>
+                    <th>Dept</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Audio</th>
+                  </tr>
+                </thead>
+                <tbody id="tickets-tbody"></tbody>
+              </table>
+            </div>
+            <div class="pager">
+              <button id="prev-page" class="btn btn-secondary">Prev</button>
+              <span id="page-indicator">1</span>
+              <button id="next-page" class="btn btn-secondary">Next</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Audio (Admin) -->
+        <section id="audio-page" class="page-content hidden">
+          <div class="card">
+            <div class="list-header">
+              <h2>Audio in S3</h2>
+              <button id="refresh-audio" class="btn btn-secondary">Refresh</button>
+            </div>
+            <ul id="audio-list" class="audio-list"></ul>
+          </div>
+        </section>
+
+        <!-- Dashboard (Admin) -->
+        <section id="dashboard-page" class="page-content hidden">
+          <div class="grid-3">
+            <div class="stat-card">
+              <div class="stat-title">Total Tickets</div>
+              <div class="stat-value" id="total-tickets">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-title">Open</div>
+              <div class="stat-value" id="open-tickets">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-title">Closed</div>
+              <div class="stat-value" id="closed-tickets">0</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="./app.js"></script>
+</body>
+</html>

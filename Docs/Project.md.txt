@@ -1,0 +1,76 @@
+# Voice-Based Support Ticketing System
+
+**Date:** 20th-August-2025  
+**Author:** Abhishek Bagade  
+
+---
+
+## 1. Executive Summary
+The Voice2Ticket project allows users to create IT support tickets using voice. AWS services convert audio to text, extract key info, and create a Jira ticket.
+
+---
+
+## 2. Project Overview & Architecture
+
+### 2.1 Core Concept
+Users record their issue via a web app. The app sends audio to the cloud, and a ticket is returned.
+
+### 2.2 Architecture Diagram
+- **Frontend (React JS / S3):** UI for recording audio  
+- **API Gateway:** HTTPS endpoint for frontend  
+- **AWS Lambda (Orchestrator):** Coordinates workflow  
+- **Amazon Transcribe:** Converts audio to text  
+- **Amazon Comprehend:** Analyzes text for urgency  
+- **Lambda (Ticket Creator):** Sends ticket to Jira  
+- **S3:** Stores audio files  
+- **DynamoDB:** Logs transcription & ticket info  
+
+### 2.3 AWS Services Used
+- Frontend Hosting: Amplify / S3 + CloudFront  
+- Compute: Lambda  
+- API Management: API Gateway  
+- AI/ML: Transcribe, Comprehend  
+- Storage: S3, DynamoDB  
+- Security: IAM
+
+---
+
+## 3. Implementation Details
+
+### Phase 1: Voice Input to Text
+- Frontend records audio using MediaRecorder API  
+- Uploads audio to S3  
+- Initiates Transcribe job  
+- Retrieves text for ticket creation
+
+### Phase 2: Text Processing & Ticket Creation
+- Orchestrator Lambda calls Comprehend  
+- Ticket Creator Lambda formats JSON & creates Jira ticket
+
+### Phase 3: Frontend Development
+- React interface for recording & ticket display  
+- Separate dashboards for users & admin
+
+---
+
+## 4. Challenges & Solutions
+1. **Lambda Timeout:** Used SNS triggers for async handling  
+2. **Poor Transcription:** Custom vocabulary in Transcribe  
+3. **IAM Permission Errors:** Applied least-privilege roles  
+4. **Cost Management:** Added filtering logic to reduce unnecessary Comprehend calls
+
+---
+
+## 5. Future Enhancements
+- Feedback loop for low-confidence transcriptions  
+- Auto-close tickets  
+- Transcribe streaming for live transcription
+
+---
+
+**Project Link:** [Voice2Ticket Demo](https://voice2ticket-web.s3.us-east-1.amazonaws.com/index.html)
+
+---
+
+## 6. Conclusion
+Voice2Ticket demonstrates AWS serverless architecture for a scalable, user-friendly voice-based ticketing system.
