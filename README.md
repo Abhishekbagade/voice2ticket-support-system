@@ -3,7 +3,7 @@
 **Author:** Abhishek Bagade  
 **Date:** 20th August 2025  
 
-[Live Demo](https://voice2ticket-web.s3.us-east-1.amazonaws.com/index.html)
+Live Demo: https://voice2ticket-web.s3.us-east-1.amazonaws.com/index.html 
 
 ---
 
@@ -77,7 +77,3 @@ The project demonstrates real-world application of cloud-native serverless archi
 - Feedback loop for low-confidence transcriptions  
 - Auto-close tickets after resolution  
 - Real-time transcription streaming with Amazon Transcribe  
-
----
-
-## File Structure
