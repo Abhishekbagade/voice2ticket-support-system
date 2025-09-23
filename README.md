@@ -1,79 +1,124 @@
-# Voice2Ticket: Voice-Based IT Support Ticketing System
-
-**Author:** Abhishek Bagade  
-**Date:** 20th August 2025  
-
-Live Demo: https://voice2ticket-web.s3.us-east-1.amazonaws.com/index.html 
-
----
+# Voice2Ticket Support System
 
 ## Project Overview
-Voice2Ticket is a serverless application that allows users to create IT support tickets using natural speech. By leveraging AWS services such as **Lambda, Transcribe, Comprehend, API Gateway, S3, and DynamoDB**, the system converts spoken language into structured text, extracts key information like urgency and problem type, and automatically creates a ticket in **Jira Service Desk**.
 
-The project demonstrates real-world application of cloud-native serverless architecture to streamline IT support workflows.
-
----
-
-## Architecture
-
-### Core Components
-- **Frontend (React JS / S3 Hosting):** Web interface for recording and submitting voice tickets  
-- **API Gateway:** HTTPS endpoint for frontend requests  
-- **Lambda (Orchestrator):** Coordinates audio transcription and text analysis  
-- **Amazon Transcribe:** Converts audio recordings into text  
-- **Amazon Comprehend:** Detects sentiment and key phrases to assign ticket priority  
-- **Lambda (Ticket Creator):** Sends ticket details to Jira API  
-- **S3:** Stores original audio files for record-keeping  
-- **DynamoDB:** Logs transcription results and ticket metadata  
-
-### System Diagram
-![Architecture Diagram](docs/architecture-diagram.png)
+The **Voice2Ticket Support System** is an intelligent IT service automation tool that allows users to create and manage support tickets using **voice commands**. By leveraging AWS's AI/ML and serverless services, the solution converts spoken requests into structured tickets, routes them to the appropriate support team, and notifies stakeholders in real time. This system reduces manual effort, shortens resolution times, and enhances the overall user experience in IT support.
 
 ---
 
-## Features
-- Voice-based ticket creation using microphone input  
-- Automatic transcription of audio into text  
-- Sentiment analysis to prioritize urgent tickets  
-- User & Admin dashboards for ticket management  
-- Role-based access: users see their tickets, admins see all  
-- Integration with Jira Service Desk  
+## Key Features
+
+*  **Voice Input to Ticket**: Convert natural speech into structured support tickets.
+*  **AWS Transcribe + Comprehend**: Automatic speech-to-text transcription and intent detection.
+*  **Serverless Backend**: AWS Lambda functions process, validate, and store tickets.
+*  **DynamoDB Integration**: Secure and scalable storage of tickets and ticket metadata.
+*  **Email Notifications (SES)**: Real-time ticket notifications sent to IT support staff.
+*  **S3 + CloudFront**: Responsive web interface for submitting and tracking tickets.
+*  **Authentication**: AWS Cognito ensures secure user login and access control.
 
 ---
 
-## AWS Services Used
-- **Compute:** AWS Lambda (Serverless functions)  
-- **API Management:** Amazon API Gateway  
-- **AI/ML:** Amazon Transcribe, Amazon Comprehend  
-- **Storage:** S3 (audio files), DynamoDB (metadata/logs)  
-- **Hosting:** AWS Amplify / S3 + CloudFront  
-- **Security:** IAM roles and permissions  
+## System Architecture
+
+```mermaid
+graph TD
+    U[User - Voice Input] --> A[S3 Frontend - Web App]
+    A --> B[API Gateway]
+    B --> C[Lambda - Speech Processing]
+    C --> D[Amazon Transcribe - Speech to Text]
+    D --> E[Amazon Comprehend - Intent & Entity Extraction]
+    C --> F[DynamoDB - Ticket Database]
+    C --> G[SES - Email Notification]
+    H[CloudFront Distribution] --> A
+    I[Cognito - Authentication] --> A
+```
 
 ---
 
-## Implementation Details
+## Tech Stack
 
-### Frontend
-- HTML, CSS, and JavaScript (React JS) for UI  
-- MediaRecorder API captures user audio  
-- Audio uploaded to S3 bucket  
-
-### Backend (Serverless)
-- **Orchestrator Lambda:** Initiates transcription, calls Comprehend for sentiment/key phrases  
-- **Ticket Creator Lambda:** Formats JSON and creates Jira tickets via API  
-- **Event-Driven Workflow:** SNS triggers handle asynchronous processing  
+* **AWS Services**: Transcribe, Comprehend, Lambda, DynamoDB, SES, Cognito, API Gateway, S3, CloudFront, IAM
+* **Frontend**: HTML, CSS, JavaScript (voice recording & ticket UI)
+* **Backend**: Node.js (Lambda Functions)
+* **Infrastructure**: AWS Console (Free Tier)
 
 ---
 
-## Challenges & Solutions
-1. **Lambda Timeout:** Converted to async event-driven workflow using SNS  
-2. **Poor Transcriptions:** Implemented custom vocabulary in Amazon Transcribe  
-3. **IAM Access Issues:** Applied least-privilege IAM policies  
-4. **Cost Management:** Reduced unnecessary Comprehend invocations  
+## Project Structure
+
+```
+Voice2Ticket-Support-System/
+│── frontend/
+│   ├── index.html        # Web interface
+│   ├── style.css         # Styling for responsive UI
+│   └── app.js            # Voice capture and API integration
+│
+│── backend/
+│   ├── ticketLambda.js   # Core ticket creation logic
+│   ├── transcribeLambda.js # Speech-to-text processing
+│   ├── comprehendLambda.js # NLP intent detection
+│   └── api_gateway_config.json
+│
+└── README.md
+```
+
+---
+
+## Deployment Steps
+
+1. **Clone Repo** → `git clone https://github.com/Abhishekbagade/Voice2Ticket-Support-System.git`
+2. **Frontend Deployment**:
+
+   * Upload `/frontend` files to an S3 bucket.
+   * Enable static hosting and configure CloudFront distribution.
+   * Update API Gateway endpoints in `app.js`.
+3. **Backend Setup**:
+
+   * Create Lambda functions from `/backend` folder.
+   * Integrate with API Gateway.
+   * Attach roles & permissions in IAM.
+4. **Database**:
+
+   * Create DynamoDB table (`Tickets`) with primary key `TicketID`.
+5. **Voice Processing**:
+
+   * Configure Amazon Transcribe for speech-to-text.
+   * Integrate Comprehend for intent extraction.
+6. **Notifications**:
+
+   * Verify IT support emails in SES.
+   * Update SES config in Lambda.
+7. **Authentication**:
+
+   * Set up Cognito User Pool.
+   * Integrate with frontend for login & secure access.
+
+---
+
+## Outcomes & Impact
+
+* Automated support ticket creation through natural voice commands.
+* Reduced ticket logging time by eliminating manual form-filling.
+* Improved accuracy of issue categorization via NLP (Amazon Comprehend).
+* Enhanced user experience with **real-time notifications and voice-first workflow**.
+* Scalable, serverless design that can handle multiple concurrent users.
 
 ---
 
 ## Future Enhancements
-- Feedback loop for low-confidence transcriptions  
-- Auto-close tickets after resolution  
-- Real-time transcription streaming with Amazon Transcribe  
+
+* Add multi-language support with Amazon Translate.
+* Integrate Slack/Teams notifications for IT staff.
+* Expand intent recognition with custom Comprehend models.
+* Provide analytics dashboard with ticket trends and SLA monitoring.
+
+---
+
+## Author
+
+**Author:** Abhishek Bagade  
+**Date:** 20th August 2025  
+
+Live Demo: https://voice2ticket-web.s3.us-east-1.amazonaws.com/index.htm
+
+
